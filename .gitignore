@@ -240,6 +240,3 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
-/gbemu/DMG_ROM.bin
-/gbemu/tetris.gb
-/gbemu/Pokemon Red.gb
