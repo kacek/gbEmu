@@ -10,7 +10,7 @@ public:
 	~GameBoy();
 	void init();
 	void loadBIOS(char* filename);
-	void ladROM(char* filename);
+	void loadROM(char* filename);
 private:
 	MemoryBUS* BUS;
 	Cartridge* ROM;

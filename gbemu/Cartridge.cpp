@@ -63,6 +63,11 @@ void Cartridge::Load(const char* file)
 	fclose(pFile);
 }
 
+void Cartridge::init()
+{
+	ZeroMemory(&RAM, sizeof(RAM));
+}
+
 bool Cartridge::CheckLogo()
 {
 	bool ok = true;
@@ -81,4 +86,25 @@ unsigned char Cartridge::read8bROM(unsigned short address)
 unsigned short Cartridge::read16bROM(unsigned short address)
 {
 	return (ROM[address]<<8)+ROM[address+1];
+}
+
+unsigned char Cartridge::read8bRAM(unsigned short address)
+{
+	return RAM[address];
+}
+
+unsigned short Cartridge::read16bRAM(unsigned short address)
+{
+	return (RAM[address] << 8) + RAM[address + 1];
+}
+
+void Cartridge::write8bRAM(unsigned short address, unsigned char value)
+{
+	RAM[address] = value;
+}
+
+void Cartridge::write16bRAM(unsigned short address, unsigned short value)
+{
+	RAM[address] = (value & 0xFF00) >> 8;
+	RAM[address + 1] = value & 0x00FF;
 }

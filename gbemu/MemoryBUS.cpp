@@ -54,6 +54,10 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 			return PPU->read8bBG2(address - 0x9C00);
 		}
 		break;
+	case 0xA000:
+	case 0xB000:
+		ROM->read8bRAM(address - 0xA000);
+		break;
 
 	default:
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -99,6 +103,10 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 			return PPU->read16bBG2(address - 0x9C00);
 		}
 		break;
+	case 0xA000:
+	case 0xB000:
+		ROM->read16bRAM(address - 0xA000);
+		break;
 
 	default:
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -143,6 +151,14 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 			PPU->write8bBG2(address - 0x9C00, value);
 		}
 		break;
+	case 0xA000:
+	case 0xB000:
+		ROM->write8bRAM(address - 0xA000, value);
+		break;
+	default:
+		SetConsoleTextAttribute(hConsole, 12);
+		std::cout << "Error: Illegal write to location: 0x" << std::hex << address << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
 	}
 }
 
@@ -180,6 +196,14 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 			PPU->write16bBG2(address - 0x9C00, value);
 		}
 		break;
+	case 0xA000:
+	case 0xB000:
+		ROM->write16bRAM(address - 0xA000, value);
+		break;
+	default:
+		SetConsoleTextAttribute(hConsole, 12);
+		std::cout << "Error: Illegal write to location: 0x" << std::hex << address << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
 	}
 }
 

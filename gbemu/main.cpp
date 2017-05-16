@@ -54,7 +54,7 @@ void main()
 	if (GetOpenFileNameA(&file_chooser))
 	{
 		std::cout << "You chose the file \"" << DMG_file << "\"\n";
-		App->ladROM(ROM_file);
+		App->loadROM(ROM_file);
 	}
 	else
 	{
