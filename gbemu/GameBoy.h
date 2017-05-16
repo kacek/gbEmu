@@ -8,7 +8,9 @@ class GameBoy
 public:
 	GameBoy();
 	~GameBoy();
-	void init(const char* ROM_file, const char* DMG_file);
+	void init();
+	void loadBIOS(char* filename);
+	void ladROM(char* filename);
 private:
 	MemoryBUS* BUS;
 	Cartridge* ROM;

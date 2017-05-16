@@ -12,11 +12,10 @@ MemoryBUS::~MemoryBUS()
 {
 }
 
-void MemoryBUS::init(const char * file, Cartridge* CartROM, Graphics* graphic)
+void MemoryBUS::init(Cartridge* CartROM, Graphics* graphic)
 {
 	bank = 1;
 	startup = true;
-	LoadDMG(file);
 	ROM = CartROM;
 	PPU = graphic;
 }
