@@ -114,6 +114,7 @@
     <ClCompile Include="GameBoy.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryBUS.cpp" />
     <ClCompile Include="z80CPU.cpp" />
   </ItemGroup>
@@ -121,6 +122,7 @@
     <ClInclude Include="Cartridge.h" />
     <ClInclude Include="GameBoy.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryBUS.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="z80CPU.h" />

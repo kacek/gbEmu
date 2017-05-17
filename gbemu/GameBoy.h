@@ -3,6 +3,7 @@
 #include "MemoryBUS.h"
 #include "z80CPU.h"
 #include "Graphics.h"
+#include "Memory.h"
 class GameBoy
 {
 public:
@@ -16,5 +17,6 @@ private:
 	Cartridge* ROM;
 	z80CPU* CPU;
 	Graphics* PPU;
+	Memory* RAM;
 };
 

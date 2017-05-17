@@ -12,9 +12,10 @@ MemoryBUS::~MemoryBUS()
 {
 }
 
-void MemoryBUS::init(Cartridge* CartROM, Graphics* graphic)
+void MemoryBUS::init(Cartridge* CartROM, Graphics* graphic, Memory* memory)
 {
-	bank = 1;
+	RAMbank = 0;
+	ROMbank = 1;
 	startup = true;
 	ROM = CartROM;
 	PPU = graphic;
@@ -22,6 +23,7 @@ void MemoryBUS::init(Cartridge* CartROM, Graphics* graphic)
 
 unsigned char MemoryBUS::read8b(unsigned short address)
 {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	switch(address & 0xF000) {
 	case 0x0000:		//Bank 0
 	case 0x1000:
@@ -39,7 +41,7 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 	case 0x5000:
 	case 0x6000:
 	case 0x7000:
-		return ROM->read8bROM(bank * 0x4000 + address);
+		return ROM->read8bROM(ROMbank * 0x4000 + address);
 		break;
 	case 0x8000:
 	case 0x9000:
@@ -56,11 +58,13 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 		break;
 	case 0xA000:
 	case 0xB000:
-		ROM->read8bRAM(address - 0xA000);
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: Cartridge RAM access(read) at 0x" << std::hex << address << " Check MBC." << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
+		return ROM->read8bRAM(RAMbank * 0x2000+(address - 0xA000));
 		break;
 
 	default:
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(hConsole, 14);
 		std::cout << "Illegal read from pos: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
@@ -70,6 +74,7 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 
 unsigned short MemoryBUS::read16b(unsigned short address)
 {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	switch (address & 0xF000) {
 	case 0x0000:			//Bank 0
 	case 0x1000:
@@ -87,7 +92,7 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 	case 0x5000:
 	case 0x6000:
 	case 0x7000:
-		return ROM->read16bROM(bank * 0x4000 + address);
+		return ROM->read16bROM(ROMbank * 0x4000 + address);
 		break;
 	case 0x8000:			//graphics
 	case 0x9000:
@@ -105,11 +110,13 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 		break;
 	case 0xA000:
 	case 0xB000:
-		ROM->read16bRAM(address - 0xA000);
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: Cartridge RAM access(read) at 0x" << std::hex << address << " Check MBC" << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
+		return ROM->read16bRAM(RAMbank * 0x2000 + (address - 0xA000));
 		break;
 
 	default:
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleTextAttribute(hConsole, 14);
 		std::cout << "Illegal read from pos: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
@@ -153,7 +160,10 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 		break;
 	case 0xA000:
 	case 0xB000:
-		ROM->write8bRAM(address - 0xA000, value);
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: Cartridge RAM access(write) at 0x" << std::hex << address << " Check MBC" << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
+		ROM->write8bRAM(RAMbank * 0x2000 + (address - 0xA000), value);
 		break;
 	default:
 		SetConsoleTextAttribute(hConsole, 12);
@@ -198,7 +208,10 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 		break;
 	case 0xA000:
 	case 0xB000:
-		ROM->write16bRAM(address - 0xA000, value);
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: Cartridge RAM access(write) at 0x" << std::hex << address << " Check MBC" << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
+		ROM->write16bRAM(RAMbank * 0x2000 + (address - 0xA000), value);
 		break;
 	default:
 		SetConsoleTextAttribute(hConsole, 12);
