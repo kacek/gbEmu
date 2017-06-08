@@ -59,15 +59,15 @@ void z80CPU::execute()
 		case 0x20:	//JR NZ,r8 - relative jump if not zero
 			if ((f & 0x80) != 0)
 			{
-				m = 2;
-				t = 8;
-			}
-			else
-			{
 				PC--;
 				PC += BUS->read8b(PC + 1);
 				m = 3;
 				t = 12;
+			}
+			else
+			{
+				m = 2;
+				t = 8;
 			}
 			break;
 		case 0x21:	//LD HL,d16 - load literal 16-bit value to register HL
