@@ -30,6 +30,13 @@ void z80CPU::execute()
 			t = 12;
 			PC += 2;
 			break;
+		case 0x21:	//LD HL,d16 - load literal 16b-bit value to register HL
+			l = BUS->read8b(PC);
+			h = BUS->read8b(PC + 1);
+			m = 3;
+			t = 12;
+			PC += 2;
+			break;
 		case 0x31:	//LD SP, d16 - set stack pointer to literal value
 			SP = BUS->read16b(PC);
 			m = 3;
