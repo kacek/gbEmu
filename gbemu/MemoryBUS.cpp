@@ -45,6 +45,9 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 		break;
 	case 0x8000:
 	case 0x9000:
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: PPU access(read) at 0x" << std::hex << address << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
 		if (address < 0x9800)
 		{
 			return PPU->read8bTile(address - 0x8000);
@@ -96,6 +99,9 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 		break;
 	case 0x8000:			//graphics
 	case 0x9000:
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: PPU access(read) at 0x" << std::hex << address << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
 		if (address < 0x9800)
 		{
 			return PPU->read16bTile(address - 0x8000);
@@ -146,6 +152,9 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 		break;
 	case 0x8000:
 	case 0x9000:
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: PPU access(write) at 0x" << std::hex << address << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
 		if (address < 0x9800)
 		{
 			PPU->write8bTile(address - 0x8000,value);
@@ -194,6 +203,9 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 		break;
 	case 0x8000:
 	case 0x9000:
+		SetConsoleTextAttribute(hConsole, 14);
+		std::cout << "Warning: PPU access(write) at 0x" << std::hex << address << std::endl;
+		SetConsoleTextAttribute(hConsole, 15);
 		if (address < 0x9800)
 		{
 			PPU->write16bTile(address - 0x8000, value);
