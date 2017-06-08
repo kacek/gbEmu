@@ -19,6 +19,7 @@ void MemoryBUS::init(Cartridge* CartROM, Graphics* graphic, Memory* memory)
 	startup = true;
 	ROM = CartROM;
 	PPU = graphic;
+	interrupt_Register = 0;
 }
 
 unsigned char MemoryBUS::read8b(unsigned short address)
@@ -67,9 +68,32 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 		return ROM->read8bRAM(RAMbank * 0x2000+(address - 0xA000));
 		break;
 
+	case 0xF000:
+		switch (address & 0xFF00)
+		{
+		case 0xFF00:
+			switch (address)
+			{
+			case 0xFFFF:
+				return interrupt_Register;
+				break;
+			default:
+				SetConsoleTextAttribute(hConsole, 14);
+				std::cout << "Illegal 8b read from pos: 0x" << std::hex << address << std::endl;
+				SetConsoleTextAttribute(hConsole, 15);
+				return 0;
+			}
+			break;
+		default:
+			SetConsoleTextAttribute(hConsole, 14);
+			std::cout << "Illegal 8b read from pos: 0x" << std::hex << address << std::endl;
+			SetConsoleTextAttribute(hConsole, 15);
+			return 0;
+		}
+		break;
 	default:
 		SetConsoleTextAttribute(hConsole, 14);
-		std::cout << "Illegal read from pos: 0x" << std::hex << address << std::endl;
+		std::cout << "Illegal 8b read from pos: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		return 0;
 	}
@@ -124,7 +148,7 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 
 	default:
 		SetConsoleTextAttribute(hConsole, 14);
-		std::cout << "Illegal read from pos: 0x" << std::hex << address << std::endl;
+		std::cout << "Illegal 16b read from pos: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		return 0;
 	}
@@ -139,7 +163,7 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 	case 0x2000:
 	case 0x3000:
 		SetConsoleTextAttribute(hConsole, 12);
-		std::cout << "Error: Illegal write to location: 0x" << std::hex << address << std::endl;
+		std::cout << "Error: Illegal 8b write to location: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		break;
 	case 0x4000:			//switchable bank (mbc check needed)
@@ -147,7 +171,7 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 	case 0x6000:
 	case 0x7000:
 		SetConsoleTextAttribute(hConsole, 14);
-		std::cout << "Warning: Illegal write to location: 0x" << std::hex << address << " Possibly bank switch. Check MBC" << std::endl;
+		std::cout << "Warning: Illegal 8b write to location: 0x" << std::hex << address << " Possibly bank switch. Check MBC" << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		break;
 	case 0x8000:
@@ -174,9 +198,30 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 		SetConsoleTextAttribute(hConsole, 15);
 		ROM->write8bRAM(RAMbank * 0x2000 + (address - 0xA000), value);
 		break;
+	case 0xF000:
+		switch (address & 0xFF00)
+		{
+		case 0xFF00:
+			switch (address)
+			{
+			case 0xFFFF:
+				interrupt_Register = value;
+				break;
+			default:
+				SetConsoleTextAttribute(hConsole, 14);
+				std::cout << "Illegal 8b write from pos: 0x" << std::hex << address << std::endl;
+				SetConsoleTextAttribute(hConsole, 15);
+			}
+			break;
+		default:
+			SetConsoleTextAttribute(hConsole, 14);
+			std::cout << "Illegal 8b write from pos: 0x" << std::hex << address << std::endl;
+			SetConsoleTextAttribute(hConsole, 15);
+		}
+		break;
 	default:
 		SetConsoleTextAttribute(hConsole, 12);
-		std::cout << "Error: Illegal write to location: 0x" << std::hex << address << std::endl;
+		std::cout << "Error: Illegal 8b write to location: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 	}
 }
@@ -190,7 +235,7 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 	case 0x2000:
 	case 0x3000:
 		SetConsoleTextAttribute(hConsole, 12);
-		std::cout << "Error: Illegal write to location: 0x" << std::hex << address << std::endl;
+		std::cout << "Error: Illegal 16b write to location: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		break;
 	case 0x4000:
@@ -198,7 +243,7 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 	case 0x6000:
 	case 0x7000:
 		SetConsoleTextAttribute(hConsole, 14);
-		std::cout << "Warning: Illegal write to location: 0x" << std::hex << address << " Possibly bank switch. Check MBC" << std::endl;
+		std::cout << "Warning: Illegal 16b write to location: 0x" << std::hex << address << " Possibly bank switch. Check MBC" << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		break;
 	case 0x8000:
@@ -227,7 +272,7 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 		break;
 	default:
 		SetConsoleTextAttribute(hConsole, 12);
-		std::cout << "Error: Illegal write to location: 0x" << std::hex << address << std::endl;
+		std::cout << "Error: Illegal 16b write to location: 0x" << std::hex << address << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 	}
 }

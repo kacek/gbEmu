@@ -22,6 +22,6 @@ private:
 	Graphics* PPU;
 	unsigned char* DMGROM;
 	bool startup;
-
+	char interrupt_Register;
 };
 

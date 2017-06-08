@@ -35,7 +35,10 @@ void z80CPU::execute()
 		if (en_interr_timer > 0)
 		{
 			en_interr_timer--;
-			if (en_interr_timer == 0) en_interr = true;
+			if (en_interr_timer == 0) {
+				en_interr = true;
+				BUS->write8b(0xFFFF, 0xFF);
+			}
 		}
 		op = BUS->read8b(PC);
 		PC++;
