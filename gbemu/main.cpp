@@ -78,6 +78,6 @@ void main()
 		default: std::cout << "You cancelled.\n";
 		}
 	}
-
+	App->start();
 	system("pause");
 }
