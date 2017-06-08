@@ -16,5 +16,7 @@ private:
 	unsigned short PC, SP, temp;
 	bool working;
 	unsigned char op;
+	bool en_interr;
+	char en_interr_timer;
 };
 

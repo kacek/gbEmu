@@ -16,15 +16,31 @@ void z80CPU::init(MemoryBUS * memBUS)
 	BUS = memBUS;
 }
 
+void z80CPU::reset()
+{
+	a, b, c, d, e, h, l, f = 0;
+	m, t = 0;
+	PC, SP = 0;
+	working = true;
+	en_interr = false;
+	en_interr_timer = 0;
+	execute();
+}
+
 void z80CPU::execute()
 {
 	while (working)
 	{
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (en_interr_timer > 0)
+		{
+			en_interr_timer--;
+			if (en_interr_timer == 0) en_interr = true;
+		}
 		op = BUS->read8b(PC);
 		PC++;
 		switch (op) {
-		case 0x1:	//LD BC,d16 - load literal 16-bit value to register BC
+		case 0x01:	//LD BC,d16 - load literal 16-bit value to register BC
 			c = BUS->read8b(PC);
 			b = BUS->read8b(PC + 1);
 			m = 3;
@@ -59,6 +75,11 @@ void z80CPU::execute()
 			m = 1;
 			t = 4;
 			break;
+		case 0xFB:	//EI - enable interrupts
+			en_interr_timer = 2;
+			m = 1;
+			t = 4;
+			break;
 		case 0xCB:	//Prefix CB
 			op = BUS->read8b(PC);
 			PC++;
@@ -86,13 +107,4 @@ void z80CPU::execute()
 			working = false;
 		}
 	}
-}
-
-void z80CPU::reset()
-{
-	a, b, c, d, e, h, l, f = 0;
-	m, t = 0;
-	PC, SP = 0;
-	working = true;
-	execute();
 }
