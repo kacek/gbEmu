@@ -81,7 +81,7 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 	case 0x2000:
 	case 0x3000:
 		if (address < 0x0100 && startup) {
-			return (DMGROM[address]<<8)+DMGROM[address+1];
+			return DMGROM[address]+(DMGROM[address+1]<<8);
 		}
 		else
 		{
