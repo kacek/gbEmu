@@ -85,7 +85,7 @@ unsigned char Cartridge::read8bROM(unsigned short address)
 
 unsigned short Cartridge::read16bROM(unsigned short address)
 {
-	return (ROM[address]<<8)+ROM[address+1];
+	return ROM[address]+(ROM[address+1] << 8);
 }
 
 unsigned char Cartridge::read8bRAM(unsigned short address)
@@ -95,7 +95,7 @@ unsigned char Cartridge::read8bRAM(unsigned short address)
 
 unsigned short Cartridge::read16bRAM(unsigned short address)
 {
-	return (RAM[address] << 8) + RAM[address + 1];
+	return RAM[address] + (RAM[address + 1] << 8);
 }
 
 void Cartridge::write8bRAM(unsigned short address, unsigned char value)
@@ -105,6 +105,6 @@ void Cartridge::write8bRAM(unsigned short address, unsigned char value)
 
 void Cartridge::write16bRAM(unsigned short address, unsigned short value)
 {
-	RAM[address] = (value & 0xFF00) >> 8;
-	RAM[address + 1] = value & 0x00FF;
+	RAM[address] = value & 0xFF00;
+	RAM[address + 1] = (value & 0x00FF) >> 8;
 }
