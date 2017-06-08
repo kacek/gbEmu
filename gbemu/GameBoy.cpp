@@ -22,6 +22,7 @@ void GameBoy::init()
 	BUS->init(ROM, PPU, RAM);
 	ROM->init();
 	RAM->init();
+	CPU->reset();
 }
 
 void GameBoy::loadBIOS(char * filename)
