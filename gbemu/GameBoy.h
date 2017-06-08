@@ -12,6 +12,7 @@ public:
 	void init();
 	void loadBIOS(char* filename);
 	void loadROM(char* filename);
+	void start();
 private:
 	MemoryBUS* BUS;
 	Cartridge* ROM;

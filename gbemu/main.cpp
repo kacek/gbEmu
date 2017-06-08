@@ -49,7 +49,7 @@ void main()
 		default: std::cout << "You cancelled.\n";
 		}
 	}
-	MessageBox(NULL, "Choose ROM(GameBoy gmae file)", "Info", MB_OK | MB_ICONINFORMATION);
+	MessageBox(NULL, "Choose ROM(GameBoy game file)", "Info", MB_OK | MB_ICONINFORMATION);
 	file_chooser.lpstrFile = ROM_file;
 	if (GetOpenFileNameA(&file_chooser))
 	{

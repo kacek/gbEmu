@@ -28,6 +28,7 @@ void z80CPU::execute()
 			SetConsoleTextAttribute(hConsole, 14);
 			std::cout << "Warning: Unimplemented opcode 0x" << std::hex << op  << std::endl;
 			SetConsoleTextAttribute(hConsole, 15);
+			working = false;
 		}
 	}
 }
