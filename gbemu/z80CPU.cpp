@@ -47,7 +47,13 @@ void z80CPU::execute()
 			t = 12;
 			PC += 2;
 			break;
-		case 0x21:	//LD HL,d16 - load literal 16b-bit value to register HL
+		case 0x0E:	//LD C,d8 - load literal 8-bit value to register C
+			c = BUS->read8b(PC);
+			m = 2;
+			t = 8;
+			PC++;
+			break;
+		case 0x21:	//LD HL,d16 - load literal 16-bit value to register HL
 			l = BUS->read8b(PC);
 			h = BUS->read8b(PC + 1);
 			m = 3;
@@ -68,6 +74,12 @@ void z80CPU::execute()
 			l = temp & 0x00FF;
 			m = 2;
 			t = 8;
+			break;
+		case 0x3E:	//LD A,d8 - load literal 8-bit value to register A
+			a = BUS->read8b(PC);
+			m = 2;
+			t = 8;
+			PC++;
 			break;
 		case 0xAF:	//XOR A - A XOR A, result stored in A
 			a = a ^ a;
