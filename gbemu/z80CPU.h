@@ -16,6 +16,5 @@ private:
 	unsigned short PC, SP;
 	bool working;
 	unsigned char op;
-	unsigned short clock_m, clock_t;
 };
 
