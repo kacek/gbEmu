@@ -20,6 +20,7 @@ void z80CPU::execute()
 {
 	while (working)
 	{
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		op = BUS->read8b(PC);
 		PC++;
 		switch (op) {
@@ -54,11 +55,31 @@ void z80CPU::execute()
 			break;
 		case 0xAF:	//XOR A - A XOR A, result stored in A
 			a = a ^ a;
+			a==0? f |= 0x80 : f &= 0x7F;
 			m = 1;
 			t = 4;
 			break;
-		default:
-			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		case 0xCB:	//Prefix CB
+			op = BUS->read8b(PC);
+			PC++;
+			switch (op)
+			{
+			case 0x7C:
+				h & 0x80 == 0 ? f |= 0x80 : f &= 0x7F;
+				f &= 0xBF;
+				f |= 0x20;
+				break;
+			default:
+				SetConsoleTextAttribute(hConsole, 14);
+				std::cout << "Warning: Unimplemented opcode 0xCB" << std::hex << (int)op << std::endl;
+				SetConsoleTextAttribute(hConsole, 15);
+				working = false;
+			}
+			m = 2;
+			h = 8;
+			PC++;
+			break;
+		default:		
 			SetConsoleTextAttribute(hConsole, 14);
 			std::cout << "Warning: Unimplemented opcode 0x" << std::hex << (int)op  << std::endl;
 			SetConsoleTextAttribute(hConsole, 15);
