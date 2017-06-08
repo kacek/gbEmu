@@ -43,6 +43,15 @@ void z80CPU::execute()
 			t = 12;
 			PC += 2;
 			break;
+		case 0x32:	//LD (HL-),A - put value from A at address (HL), decrement HL
+			temp = (h << 8) + l;
+			BUS->write8b(temp, a);
+			temp--;
+			h = (temp & 0xFF00) >> 8;
+			l = temp & 0x00FF;
+			m = 2;
+			t = 8;
+			break;
 		case 0xAF:	//XOR A - A XOR A, result stored in A
 			a = a ^ a;
 			m = 1;

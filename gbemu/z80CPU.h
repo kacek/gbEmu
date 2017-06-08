@@ -13,7 +13,7 @@ private:
 	MemoryBUS* BUS;
 	unsigned char a, b, c, d, e, h, l, f;
 	unsigned char m, t;
-	unsigned short PC, SP;
+	unsigned short PC, SP, temp;
 	bool working;
 	unsigned char op;
 };
