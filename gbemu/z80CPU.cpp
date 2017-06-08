@@ -113,7 +113,6 @@ void z80CPU::execute()
 			}
 			m = 2;
 			h = 8;
-			PC++;
 			break;
 		default:		
 			SetConsoleTextAttribute(hConsole, 14);
