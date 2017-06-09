@@ -63,11 +63,15 @@ void z80CPU::execute()
 				PC += BUS->read8b(PC + 1);
 				m = 3;
 				t = 12;
+				SetConsoleTextAttribute(hConsole, 14);
+				std::cout << "Warning: Jump to 0x" << std::hex << PC << std::endl;
+				SetConsoleTextAttribute(hConsole, 15);
 			}
 			else
 			{
 				m = 2;
 				t = 8;
+				PC++;
 			}
 			break;
 		case 0x21:	//LD HL,d16 - load literal 16-bit value to register HL
