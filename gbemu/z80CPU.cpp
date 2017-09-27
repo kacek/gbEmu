@@ -143,9 +143,9 @@ void z80CPU::execute()
 			t = 4;
 			break;
 		case 0xCD:	//CALL a16 - push PC to stack, jump to address TODO: proper stack handling
-			BUS->write16b(SP, PC + 1);
+			BUS->write16b(SP-1, PC + 1);
 			PC = BUS->read16b(PC);
-			SP--;
+			SP -= 2;
 			m = 6;
 			t = 24;
 			break;

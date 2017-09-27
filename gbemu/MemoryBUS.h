@@ -17,6 +17,7 @@ public:
 private:
 	int ROMbank;
 	int RAMbank;
+	char ZeroPage[127];
 	Memory* RAM;
 	Cartridge* ROM;
 	Graphics* PPU;

@@ -20,6 +20,7 @@ void MemoryBUS::init(Cartridge* CartROM, Graphics* graphic, Memory* memory)
 	ROM = CartROM;
 	PPU = graphic;
 	interrupt_Register = 0;
+	ZeroMemory(&ZeroPage,sizeof(ZeroPage));
 }
 
 unsigned char MemoryBUS::read8b(unsigned short address)
@@ -72,17 +73,16 @@ unsigned char MemoryBUS::read8b(unsigned short address)
 		switch (address & 0xFF00)
 		{
 		case 0xFF00:
-			switch (address)
+			if ((address >= 0xFF80)&&(address <0xFFFF))
 			{
-			case 0xFFFF:
-				return interrupt_Register;
-				break;
-			default:
-				SetConsoleTextAttribute(hConsole, 14);
-				std::cout << "Illegal 8b read from pos: 0x" << std::hex << address << std::endl;
-				SetConsoleTextAttribute(hConsole, 15);
-				return 0;
-			}
+				return ZeroPage[address - 0xFF80];
+			}			
+			if(address == 0xFFFF)
+				return interrupt_Register;			
+			SetConsoleTextAttribute(hConsole, 14);
+			std::cout << "Illegal 8b read from pos: 0x" << std::hex << address << std::endl;
+			SetConsoleTextAttribute(hConsole, 15);
+			return 0;
 			break;
 		default:
 			SetConsoleTextAttribute(hConsole, 14);
@@ -145,6 +145,19 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 		SetConsoleTextAttribute(hConsole, 15);
 		return ROM->read16bRAM(RAMbank * 0x2000 + (address - 0xA000));
 		break;
+	case 0xF000:
+		switch (address & 0xFF00) {
+		case 0xFF00:
+			if (address >= 0xFF80) {
+				return ZeroPage[address + 1 - 0xff80] + (ZeroPage[address - 0xff80] << 8);
+			}
+			break;
+		default:
+			SetConsoleTextAttribute(hConsole, 14);
+			std::cout << "Illegal 16b read from pos: 0x" << std::hex << address << std::endl;
+			SetConsoleTextAttribute(hConsole, 15);
+			return 0;
+		}
 
 	default:
 		SetConsoleTextAttribute(hConsole, 14);
@@ -202,20 +215,20 @@ void MemoryBUS::write8b(unsigned short address, unsigned char value)
 		switch (address & 0xFF00)
 		{
 		case 0xFF00:
-			switch (address)
+			if (address < 0xff80)
 			{
-			case 0xFFFF:
-				interrupt_Register = value;
-				break;
-			default:
 				SetConsoleTextAttribute(hConsole, 14);
-				std::cout << "Illegal 8b write from pos: 0x" << std::hex << address << std::endl;
+				std::cout << "Illegal 8b write to loc: 0x" << std::hex << address << std::endl;
 				SetConsoleTextAttribute(hConsole, 15);
 			}
+			if ((address >= 0xff80) && (address < 0xffff))
+				ZeroPage[address - 0xff80] = value;
+			if (address == 0xFFFF)
+				interrupt_Register = value;	
 			break;
 		default:
 			SetConsoleTextAttribute(hConsole, 14);
-			std::cout << "Illegal 8b write from pos: 0x" << std::hex << address << std::endl;
+			std::cout << "Illegal 8b write to loc: 0x" << std::hex << address << std::endl;
 			SetConsoleTextAttribute(hConsole, 15);
 		}
 		break;
@@ -269,6 +282,27 @@ void MemoryBUS::write16b(unsigned short address, unsigned short value)
 		std::cout << "Warning: Cartridge RAM access(write) at 0x" << std::hex << address << " Check MBC" << std::endl;
 		SetConsoleTextAttribute(hConsole, 15);
 		ROM->write16bRAM(RAMbank * 0x2000 + (address - 0xA000), value);
+		break;
+	case 0xF000:
+		switch (address & 0xFF00) {
+		case 0xFF00:
+			if ((address < 0xff80) ||(address>=0xfffe))
+			{
+				SetConsoleTextAttribute(hConsole, 14);
+				std::cout << "Illegal 16b write to loc: 0x" << std::hex << address << std::endl;
+				SetConsoleTextAttribute(hConsole, 15);
+			}
+			if ((address >= 0xff80) && (address < 0xfffe))
+			{
+				ZeroPage[address - 0xff80] = value & 0xFF;
+				ZeroPage[address - 0xff80 + 1] = (value & 0xFF00) >> 8;
+			}
+			break;
+		default:
+			SetConsoleTextAttribute(hConsole, 12);
+			std::cout << "Error: Illegal 16b write to location: 0x" << std::hex << address << std::endl;
+			SetConsoleTextAttribute(hConsole, 15);
+		}
 		break;
 	default:
 		SetConsoleTextAttribute(hConsole, 12);
