@@ -50,11 +50,39 @@ void z80CPU::execute()
 			t = 12;
 			PC += 2;
 			break;
+		case 0x0C:	//INC C - increment register C
+			if ((c & 0xf) == 0xf)
+			{
+				f = f || 0x20;
+			}
+			if (c == 0xff)
+			{
+				c = 0x00;
+				f |= 0x80;
+			}
+			else c++;
+			f &= 0xBF;
+			m = 1;
+			t = 4;
+			break;
 		case 0x0E:	//LD C,d8 - load literal 8-bit value to register C
 			c = BUS->read8b(PC);
 			m = 2;
 			t = 8;
 			PC++;
+			break;
+		case 0x11:	//:D DE,d16 - load literal 16bits to register DE
+			e = BUS->read8b(PC);
+			d = BUS->read8b(PC + 1);
+			PC += 2;
+			m = 3;
+			t = 12;
+			break;
+		case 0x1A:	//LD A,(DL) - load from address (DL) to A
+			temp = (d << 8) + e;
+			a = BUS->read8b(temp);
+			m = 2;
+			t = 8;
 			break;
 		case 0x20:	//JR NZ,r8 - relative jump if not zero
 			if ((f & 0x80) != 0)
@@ -102,11 +130,35 @@ void z80CPU::execute()
 			t = 8;
 			PC++;
 			break;
+		case 0x77: //LD (HL),A - store value from A in memory address (HL)
+			temp = (h << 8) + l;
+			BUS->write8b(temp, a);
+			m = 2;
+			t = 8;
+			break;
 		case 0xAF:	//XOR A - A XOR A, result stored in A
 			a = a ^ a;
 			a==0? f |= 0x80 : f &= 0x7F;
 			m = 1;
 			t = 4;
+			break;
+		case 0xCD:	//CALL a16 - push PC to stack, jump to address TODO: proper stack handling
+			BUS->write16b(SP, PC + 1);
+			PC = BUS->read16b(PC);
+			SP--;
+			m = 6;
+			t = 24;
+			break;
+		case 0xE0:	//LDH (a8),A - put A in 0xFF00+a8
+			BUS->write8b(0xFF00 + BUS->read8b(PC), a);
+			PC++;
+			m = 3;
+			t = 12;
+			break;
+		case 0xE2:	//LD (C), A - store A in 0xFF00+C
+			BUS->write8b(0xff00 + c, a);
+			m = 2;
+			t = 8;
 			break;
 		case 0xFB:	//EI - enable interrupts
 			en_interr_timer = 2;
