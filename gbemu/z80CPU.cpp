@@ -71,14 +71,14 @@ void z80CPU::execute()
 			t = 8;
 			PC++;
 			break;
-		case 0x11:	//:D DE,d16 - load literal 16bits to register DE
+		case 0x11:	//LD DE,d16 - load literal 16bits to register DE
 			e = BUS->read8b(PC);
 			d = BUS->read8b(PC + 1);
 			PC += 2;
 			m = 3;
 			t = 12;
 			break;
-		case 0x1A:	//LD A,(DL) - load from address (DL) to A
+		case 0x1A:	//LD A,(DE) - load from address (DE) to A
 			temp = (d << 8) + e;
 			a = BUS->read8b(temp);
 			m = 2;
@@ -88,7 +88,7 @@ void z80CPU::execute()
 			if ((f & 0x80) != 0)
 			{
 				PC--;
-				PC += BUS->read8b(PC + 1);
+				PC += (signed char)BUS->read8b(PC + 1);
 				m = 3;
 				t = 12;
 				SetConsoleTextAttribute(hConsole, 14);
@@ -129,6 +129,11 @@ void z80CPU::execute()
 			m = 2;
 			t = 8;
 			PC++;
+			break;
+		case 0x4F:	//LD C,A - put value from register A to register C
+			c = a;
+			m = 1;
+			t = 4;
 			break;
 		case 0x77: //LD (HL),A - store value from A in memory address (HL)
 			temp = (h << 8) + l;

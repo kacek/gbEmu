@@ -149,7 +149,7 @@ unsigned short MemoryBUS::read16b(unsigned short address)
 		switch (address & 0xFF00) {
 		case 0xFF00:
 			if (address >= 0xFF80) {
-				return ZeroPage[address + 1 - 0xff80] + (ZeroPage[address - 0xff80] << 8);
+				return ZeroPage[address - 0xff80] + (ZeroPage[address + 1 - 0xff80] << 8);
 			}
 			break;
 		default:
