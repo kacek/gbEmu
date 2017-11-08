@@ -41,14 +41,19 @@ void z80CPU::execute()
 			}
 		}
 		op = BUS->read8b(PC);
-		PC++;
 		switch (op) {
 		case 0x01:	//LD BC,d16 - load literal 16-bit value to register BC
-			c = BUS->read8b(PC);
-			b = BUS->read8b(PC + 1);
+			c = BUS->read8b(PC + 1);
+			b = BUS->read8b(PC + 2);
 			m = 3;
 			t = 12;
 			PC += 2;
+			break;
+		case 0x06:	//LD B, d8 - load literal 8bit value into register B
+			b = BUS->read8b(PC+1);
+			PC++;
+			m = 2;
+			t = 8;
 			break;
 		case 0x0C:	//INC C - increment register C
 			if ((c & 0xf) == 0xf)
@@ -66,14 +71,14 @@ void z80CPU::execute()
 			t = 4;
 			break;
 		case 0x0E:	//LD C,d8 - load literal 8-bit value to register C
-			c = BUS->read8b(PC);
+			c = BUS->read8b(PC+1);
 			m = 2;
 			t = 8;
 			PC++;
 			break;
 		case 0x11:	//LD DE,d16 - load literal 16bits to register DE
-			e = BUS->read8b(PC);
-			d = BUS->read8b(PC + 1);
+			e = BUS->read8b(PC+1);
+			d = BUS->read8b(PC + 2);
 			PC += 2;
 			m = 3;
 			t = 12;
@@ -87,7 +92,6 @@ void z80CPU::execute()
 		case 0x20:	//JR NZ,r8 - relative jump if not zero
 			if ((f & 0x80) != 0)
 			{
-				PC--;
 				PC += (signed char)BUS->read8b(PC + 1);
 				m = 3;
 				t = 12;
@@ -103,14 +107,14 @@ void z80CPU::execute()
 			}
 			break;
 		case 0x21:	//LD HL,d16 - load literal 16-bit value to register HL
-			l = BUS->read8b(PC);
-			h = BUS->read8b(PC + 1);
+			l = BUS->read8b(PC + 1);
+			h = BUS->read8b(PC + 2);
 			m = 3;
 			t = 12;
 			PC += 2;
 			break;
 		case 0x31:	//LD SP, d16 - set stack pointer to literal value
-			SP = BUS->read16b(PC);
+			SP = BUS->read16b(PC + 1);
 			m = 3;
 			t = 12;
 			PC += 2;
@@ -125,7 +129,7 @@ void z80CPU::execute()
 			t = 8;
 			break;
 		case 0x3E:	//LD A,d8 - load literal 8-bit value to register A
-			a = BUS->read8b(PC);
+			a = BUS->read8b(PC + 1);
 			m = 2;
 			t = 8;
 			PC++;
@@ -147,15 +151,21 @@ void z80CPU::execute()
 			m = 1;
 			t = 4;
 			break;
+		case 0xC5: //PUSH BC - put value from BC register on stack
+			BUS->write16b(SP - 1, ((b << 8) + c));
+			SP -= 2;
+			m = 4;
+			t = 16;
+			break;
 		case 0xCD:	//CALL a16 - push PC to stack, jump to address TODO: proper stack handling
-			BUS->write16b(SP-1, PC + 1);
-			PC = BUS->read16b(PC);
+			BUS->write16b(SP-1, PC + 2);
+			PC = BUS->read16b(PC + 1);
 			SP -= 2;
 			m = 6;
 			t = 24;
 			break;
 		case 0xE0:	//LDH (a8),A - put A in 0xFF00+a8
-			BUS->write8b(0xFF00 + BUS->read8b(PC), a);
+			BUS->write8b(0xFF00 + BUS->read8b(PC+1), a);
 			PC++;
 			m = 3;
 			t = 12;
@@ -171,7 +181,7 @@ void z80CPU::execute()
 			t = 4;
 			break;
 		case 0xCB:	//Prefix CB
-			op = BUS->read8b(PC);
+			op = BUS->read8b(PC+1);
 			PC++;
 			switch (op)
 			{
@@ -182,7 +192,7 @@ void z80CPU::execute()
 				break;
 			default:
 				SetConsoleTextAttribute(hConsole, 14);
-				std::cout << "Warning: Unimplemented opcode 0xCB" << std::hex << (int)op << std::endl;
+				std::cout << "0x" << std::hex << PC - 1 <<": Warning: Unimplemented opcode 0xCB" << std::hex << (int)op << std::endl;
 				SetConsoleTextAttribute(hConsole, 15);
 				working = false;
 			}
@@ -191,9 +201,10 @@ void z80CPU::execute()
 			break;
 		default:		
 			SetConsoleTextAttribute(hConsole, 14);
-			std::cout << "Warning: Unimplemented opcode 0x" << std::hex << (int)op  << std::endl;
+			std::cout << "0x" << std::hex << PC << ": Warning: Unimplemented opcode 0x" << std::hex << (int)op  << std::endl;
 			SetConsoleTextAttribute(hConsole, 15);
 			working = false;
 		}
+		PC++;
 	}
 }
