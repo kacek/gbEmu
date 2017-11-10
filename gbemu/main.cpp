@@ -53,7 +53,7 @@ void main()
 	file_chooser.lpstrFile = ROM_file;
 	if (GetOpenFileNameA(&file_chooser))
 	{
-		std::cout << "You chose the file \"" << DMG_file << "\"\n";
+		std::cout << "You chose the file \"" << ROM_file << "\"\n";
 		App->loadROM(ROM_file);
 	}
 	else

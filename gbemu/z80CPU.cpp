@@ -49,6 +49,14 @@ void z80CPU::execute()
 			t = 12;
 			PC += 2;
 			break;
+		case 0x05:	//DEC B - decrease register B
+			(b & 0xf) == 0 ? f &= 0xdf : f |= 0x20;
+			b--;
+			b == 0 ? f |= 0x80 : f &= 0x7F;
+			f |= 0x40;
+			m = 1;
+			t = 4;
+			break;
 		case 0x06:	//LD B, d8 - load literal 8bit value into register B
 			b = BUS->read8b(PC+1);
 			PC++;
@@ -56,20 +64,9 @@ void z80CPU::execute()
 			t = 8;
 			break;
 		case 0x0C:	//INC C - increment register C
-			if ((c & 0xf) == 0xf)
-			{
-				f = f || 0x20;
-			}
-			if (c == 0xff)
-			{
-				c = 0x00;
-				f |= 0x80;
-			}
-			else
-			{
-				c++;
-				f &= 0x7f;
-			}
+			(c & 0xf) == 0xf ? f |= 0x20 : f &= 0xdf;
+			c == 0xff? f |= 0x80 : f &= 0x7f;
+			c++;
 			f &= 0xBF;
 			m = 1;
 			t = 4;
@@ -103,9 +100,9 @@ void z80CPU::execute()
 			t = 8;
 			break;
 		case 0x20:	//JR NZ,r8 - relative jump if not zero
-			if ((f & 0x80) != 0)
+			if ((f & 0x80) == 0)
 			{
-				PC += (signed char)BUS->read8b(PC + 1);
+				PC += (signed char)BUS->read8b(PC + 1) + 1;
 				m = 3;
 				t = 12;
 				SetConsoleTextAttribute(hConsole, 14);
@@ -125,6 +122,15 @@ void z80CPU::execute()
 			m = 3;
 			t = 12;
 			PC += 2;
+			break;
+		case 0x22:	//LD (HL+),A - put value from A to address (HL), increment HL
+			temp = (h << 8) + l;
+			BUS->write8b(temp, a);
+			temp++;
+			h = (temp & 0xFF00) >> 8;
+			l = temp & 0xff;
+			m = 2;
+			t = 8;
 			break;
 		case 0x31:	//LD SP, d16 - set stack pointer to literal value
 			SP = BUS->read16b(PC + 1);
@@ -159,7 +165,7 @@ void z80CPU::execute()
 			t = 8;
 			break;
 		case 0xAF:	//XOR A - A XOR A, result stored in A
-			a = a ^ a;
+			a ^= a;
 			a==0? f |= 0x80 : f &= 0x7F;
 			f &= 0x8F;
 			m = 1;
@@ -214,8 +220,8 @@ void z80CPU::execute()
 				c == 0 ? f |= 0x10 : f &= 0x7f;
 				f &= 0x9F;
 				break;
-			case 0x7C:	//test bit 7 in register H
-				(h & 0x80) == 0 ? f |= 0x80 : f &= 0x7F;
+			case 0x7C:	//BIT 7,H - test bit 7 in register H
+				(h & 0x80) != 0 ? f &= 0x7F : f |= 0x80;
 				f &= 0xBF;
 				f |= 0x20;
 				break;
@@ -226,7 +232,7 @@ void z80CPU::execute()
 				working = false;
 			}
 			m = 2;
-			h = 8;
+			t = 8;
 			break;
 		default:		
 			SetConsoleTextAttribute(hConsole, 14);
