@@ -65,7 +65,11 @@ void z80CPU::execute()
 				c = 0x00;
 				f |= 0x80;
 			}
-			else c++;
+			else
+			{
+				c++;
+				f &= 0x7f;
+			}
 			f &= 0xBF;
 			m = 1;
 			t = 4;
@@ -82,6 +86,15 @@ void z80CPU::execute()
 			PC += 2;
 			m = 3;
 			t = 12;
+			break;
+		case 0x17:	//RLA - rotate A left through carry
+			temp = a;
+			a <<= 1;
+			a += (f & 0x10) >> 4;
+			(temp & 0x80) != 0 ? f |= 0x10 : f &= 0xef;
+			f &= 0x1F;
+			m = 1;
+			t = 4;
 			break;
 		case 0x1A:	//LD A,(DE) - load from address (DE) to A
 			temp = (d << 8) + e;
@@ -148,8 +161,16 @@ void z80CPU::execute()
 		case 0xAF:	//XOR A - A XOR A, result stored in A
 			a = a ^ a;
 			a==0? f |= 0x80 : f &= 0x7F;
+			f &= 0x8F;
 			m = 1;
 			t = 4;
+			break;
+		case 0xC1:	//POP BC - load value to register BC from stack
+			temp = BUS->read16b(SP);
+			b = (temp & 0xFF00) >> 8;
+			c = temp & 0x00FF;
+			m = 3;
+			t = 12;
 			break;
 		case 0xC5: //PUSH BC - put value from BC register on stack
 			BUS->write16b(SP - 1, ((b << 8) + c));
@@ -185,7 +206,15 @@ void z80CPU::execute()
 			PC++;
 			switch (op)
 			{
-			case 0x7C:
+			case 0x11: //RL C - rotate left through carry
+				temp = c;
+				c <<= 1;
+				c += (f & 0x10) >> 4;
+				(temp & 0x80) != 0 ? f |= 0x10 : f &= 0xef;
+				c == 0 ? f |= 0x10 : f &= 0x7f;
+				f &= 0x9F;
+				break;
+			case 0x7C:	//test bit 7 in register H
 				(h & 0x80) == 0 ? f |= 0x80 : f &= 0x7F;
 				f &= 0xBF;
 				f |= 0x20;
